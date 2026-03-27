@@ -297,7 +297,7 @@ def sample_seeds_2(model, x, sigmas, extra_args=None, callback=None, disable=Non
 
     extra_args = {} if extra_args is None else extra_args
     seed = extra_args.get("seed", None)
-    noise_sampler = default_noise_sampler(x, seed=seed) if noise_sampler is None else noise_sampler
+    noise_sampler = default_noise_sampler(x) if noise_sampler is None else noise_sampler
     s_in = x.new_ones([x.shape[0]])
     inject_noise = eta > 0 and s_noise > 0
 
@@ -357,7 +357,7 @@ def sample_seeds_3(model, x, sigmas, extra_args=None, callback=None, disable=Non
     """
     extra_args = {} if extra_args is None else extra_args
     seed = extra_args.get("seed", None)
-    noise_sampler = default_noise_sampler(x, seed=seed) if noise_sampler is None else noise_sampler
+    noise_sampler = default_noise_sampler(x) if noise_sampler is None else noise_sampler
     s_in = x.new_ones([x.shape[0]])
     inject_noise = eta > 0 and s_noise > 0
 
