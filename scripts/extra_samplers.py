@@ -7,6 +7,7 @@ from scipy import integrate
 from backend.patcher.base import set_model_options_post_cfg_function
 
 from modules_forge.packages.k_diffusion import utils
+from modules_forge.packages.k_diffusion.sampling import res_multistep
 
 import scripts.sa_solver as sa_solver
 
@@ -275,6 +276,18 @@ def sample_gradient_estimation_cfg_pp(model, x, sigmas, extra_args=None, callbac
     return sample_gradient_estimation(model, x, sigmas, extra_args=extra_args, callback=callback, disable=disable, ge_gamma=ge_gamma, cfg_pp=True)
 
 @torch.no_grad()
+def sample_res_multistep_cfg_pp(model, x, sigmas, extra_args=None, callback=None, disable=None, s_noise=1., noise_sampler=None):
+    return res_multistep(model, x, sigmas, extra_args=extra_args, callback=callback, disable=disable, s_noise=s_noise, noise_sampler=noise_sampler, eta=0., cfg_pp=True)
+
+@torch.no_grad()
+def sample_res_multistep_ancestral(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None):
+    return res_multistep(model, x, sigmas, extra_args=extra_args, callback=callback, disable=disable, s_noise=s_noise, noise_sampler=noise_sampler, eta=eta, cfg_pp=False)
+
+@torch.no_grad()
+def sample_res_multistep_ancestral_cfg_pp(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None):
+    return res_multistep(model, x, sigmas, extra_args=extra_args, callback=callback, disable=disable, s_noise=s_noise, noise_sampler=noise_sampler, eta=eta, cfg_pp=True)
+
+@torch.no_grad()
 def sample_seeds_2(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None, r=0.5, solver_type="phi_1"):
     """SEEDS-2 - Stochastic Explicit Exponential Derivative-free Solvers (VP Data Prediction) stage 2.
     arXiv: https://arxiv.org/abs/2305.14267 (NeurIPS 2023)
@@ -538,8 +551,10 @@ try:
         ("SA Solver PECE",            sample_sa_solver_pece,                ["sa_solver_pece"],              {}),
         ("DPM++ SDE CFG++",           sample_dpmpp_sde_cfg_pp,              ["dpmpp_sde_cfg_pp"],            {}),
         # ("DPM++ 2S a CFG++",          sample_dpmpp_2s_ancestral_cfg_pp,     ["dpmpp_2s_ancestral_cfg_pp"],   {}), #this one seems a bit unstable
-        ("EXP Heun 2 x0",             sample_exp_heun_2_x0,              ["exp_heun_2_x0"],            {}),
-        ("EXP Heun 2 x0 SDE",         sample_exp_heun_2_x0_sde,              ["exp_heun_2_x0_sde"],            {}),
+        ("EXP Heun 2 x0",             sample_exp_heun_2_x0,                 ["exp_heun_2_x0"],               {}),
+        ("Res Multistep CFG++",       sample_res_multistep_cfg_pp,          ["res_multistep_cfg_pp"],        {}),
+        ("Res Multistep A",           sample_res_multistep_ancestral,       ["res_multistep_aa"],            {}),
+        ("Res Multistep A CFG++",     sample_res_multistep_ancestral_cfg_pp,["res_multistep_a_cfg_pp"],      {}),
     ]
 
     _samplers_data_extra = [
