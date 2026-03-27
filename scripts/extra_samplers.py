@@ -301,7 +301,7 @@ def sample_seeds_2(model, x, sigmas, extra_args=None, callback=None, disable=Non
     s_in = x.new_ones([x.shape[0]])
     inject_noise = eta > 0 and s_noise > 0
 
-    model_sampling = model.inner_model.model_patcher.get_model_object('model_sampling')
+    model_sampling = model.inner_model.predictor
     sigma_fn = partial(half_log_snr_to_sigma, model_sampling=model_sampling)
     lambda_fn = partial(sigma_to_half_log_snr, model_sampling=model_sampling)
     sigmas = offset_first_sigma_for_snr(sigmas, model_sampling)
@@ -361,7 +361,7 @@ def sample_seeds_3(model, x, sigmas, extra_args=None, callback=None, disable=Non
     s_in = x.new_ones([x.shape[0]])
     inject_noise = eta > 0 and s_noise > 0
 
-    model_sampling = model.inner_model.model_patcher.get_model_object('model_sampling')
+    model_sampling = model.inner_model.predictor
     sigma_fn = partial(half_log_snr_to_sigma, model_sampling=model_sampling)
     lambda_fn = partial(sigma_to_half_log_snr, model_sampling=model_sampling)
     sigmas = offset_first_sigma_for_snr(sigmas, model_sampling)
