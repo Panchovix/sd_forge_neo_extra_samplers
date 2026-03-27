@@ -552,6 +552,7 @@ try:
         ("DPM++ SDE CFG++",           sample_dpmpp_sde_cfg_pp,              ["dpmpp_sde_cfg_pp"],            {}),
         # ("DPM++ 2S a CFG++",          sample_dpmpp_2s_ancestral_cfg_pp,     ["dpmpp_2s_ancestral_cfg_pp"],   {}), #this one seems a bit unstable
         ("EXP Heun 2 x0",             sample_exp_heun_2_x0,                 ["exp_heun_2_x0"],               {}),
+        ("EXP Heun 2 x0 SDE",             sample_exp_heun_2_x0_sde,         ["exp_heun_2_x0_sde"],           {}),
         ("Res Multistep CFG++",       sample_res_multistep_cfg_pp,          ["res_multistep_cfg_pp"],        {}),
         ("Res Multistep A",           sample_res_multistep_ancestral,       ["res_multistep_aa"],            {}),
         ("Res Multistep A CFG++",     sample_res_multistep_ancestral_cfg_pp,["res_multistep_a_cfg_pp"],      {}),
