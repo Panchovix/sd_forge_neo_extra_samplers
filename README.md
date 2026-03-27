@@ -13,3 +13,8 @@ Added samplers for now:
 * DPM++ SDE CFG++
 * SA Solver
 * SA Solver PECE
+* RES Multistep CFG++
+* RES Multistep Ancestral
+* RES Multistep Ancestral CFG++
+* EXP Heun 2 X0
+* EXP Heun 2 X0 SDE
