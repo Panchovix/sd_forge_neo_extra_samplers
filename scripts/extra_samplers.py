@@ -535,6 +535,48 @@ def sample_exp_heun_2_x0_sde(model, x, sigmas, extra_args=None, callback=None, d
     """Stochastic exponential Heun second order method in data prediction (x0) and logSNR time."""
     return sample_seeds_2(model, x, sigmas, extra_args=extra_args, callback=callback, disable=disable, eta=eta, s_noise=s_noise, noise_sampler=noise_sampler, r=1.0, solver_type=solver_type)
 
+@torch.no_grad()
+def sample_euler_a2(model, x, sigmas, extra_args=None, callback=None, disable=None, noise_sampler=None, eta=1.0, s_noise=1.0, extrapolation=0.425):
+    """Euler ancestral sampler that averages two noise paths and extrapolates along their mean direction."""
+    extra_args = {} if extra_args is None else extra_args
+    seed = extra_args.get("seed", None)
+    noise_sampler = default_noise_sampler(x) if noise_sampler is None else noise_sampler
+    s_in = x.new_ones([x.shape[0]])
+
+    for i in trange(len(sigmas) - 1, disable=disable):
+        denoised = model(x, sigmas[i] * s_in, **extra_args)
+        if callback is not None:
+            callback({'x': x, 'i': i, 'sigma': sigmas[i], 'sigma_hat': sigmas[i], 'denoised': denoised})
+
+        if sigmas[i + 1] == 0:
+            x = denoised
+            continue
+
+        downstep_ratio = 1 + (sigmas[i + 1] / sigmas[i] - 1) * eta
+        sigma_down = sigmas[i + 1] * downstep_ratio
+        alpha_ip1 = 1 - sigmas[i + 1]
+        alpha_down = 1 - sigma_down
+
+        sigma_down_i_ratio = sigma_down / sigmas[i]
+        deterministic_path = sigma_down_i_ratio * x + (1 - sigma_down_i_ratio) * denoised
+
+        if eta > 0 and s_noise != 0:
+            base = (alpha_ip1 / alpha_down) * deterministic_path
+            renoise_coeff = (sigmas[i + 1]**2 - sigma_down**2 * alpha_ip1**2 / alpha_down**2).clamp_min(0).sqrt()
+            noise_scale = s_noise * renoise_coeff
+
+            noise_1 = noise_sampler(sigmas[i], sigmas[i + 1])
+            noise_2 = noise_sampler(sigmas[i], sigmas[i + 1])
+
+            path_1 = base + noise_1 * noise_scale
+            path_2 = base + noise_2 * noise_scale
+            merged = 0.5 * (path_1 + path_2)
+            direction = merged - base
+            x = merged + extrapolation * direction
+        else:
+            x = deterministic_path
+    return x
+
 # Sampler registration into the UI
 
 try:
@@ -556,6 +598,7 @@ try:
         ("Res Multistep CFG++",       sample_res_multistep_cfg_pp,          ["res_multistep_cfg_pp"],        {}),
         ("Res Multistep A",           sample_res_multistep_ancestral,       ["res_multistep_aa"],            {}),
         ("Res Multistep A CFG++",     sample_res_multistep_ancestral_cfg_pp,["res_multistep_a_cfg_pp"],      {}),
+        ("Euler A2",                  sample_euler_a2,                      ["euler_a2"],                    {}),
     ]
 
     _samplers_data_extra = [
