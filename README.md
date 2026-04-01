@@ -18,3 +18,4 @@ Added samplers for now:
 * RES Multistep Ancestral CFG++
 * EXP Heun 2 X0
 * EXP Heun 2 X0 SDE
+* Euler A2
